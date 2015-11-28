@@ -1,31 +1,42 @@
-import acorn from './acorn';
-import babelEslint from './babel-eslint';
-import babylon from './babylon';
+// import acorn from './acorn';
+// import babelEslint from './babel-eslint';
+// import babylon from './babylon';
 import babylon6 from './babylon6';
-import espree from './espree';
-import esprima from './esprima';
-import recast from './recast';
-import shift from './shift';
-import traceur from './traceur';
-import typescript from './typescript';
-import uglify from './uglify';
+// import espree from './espree';
+// import esprima from './esprima';
+import horchata from './horchata';
+// import recast from './recast';
+// import shift from './shift';
+// import traceur from './traceur';
+// import typescript from './typescript';
+// import uglify from './uglify';
 
 export var parsers = [
-  acorn,
-  babelEslint,
-  babylon,
+  // acorn,
+  // babelEslint,
+  // babylon,
   babylon6,
-  espree,
-  esprima,
-  recast,
-  shift,
-  traceur,
-  typescript,
-  uglify,
+  // espree,
+  // esprima,
+  horchata,
+  // recast,
+  // shift,
+  // traceur,
+  // typescript,
+  // uglify,
 ];
 
+for (let i = 0, len = parsers.length; i < len; i++) {
+  let parser = parsers[i];
+  if (parser.language == null) parser.language = 'javascript';
+}
+
 export function getDefaultParser() {
-  return parsers[0];
+  return babylon6;
+}
+
+export function getDefaultLeftParser() {
+  return horchata;
 }
 
 let byID = parsers.reduce(

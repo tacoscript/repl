@@ -13,7 +13,8 @@ import * as LocalStorage from './LocalStorage';
 
 import getFocusPath from './getFocusPath';
 // import {getTransformerByID} from './transformers';
-import {getDefaultParser, getParser} from './parsers';
+import {getDefaultParser, getDefaultLeftParser/*, getParser*/} from './parsers';
+import {getDefaultGenerator, getDefaultLeftGenerator} from './generators';
 import defaultCode from './codeExample.txt';
 
 // import SaveForkMixin from './SaveForkMixin';
@@ -37,23 +38,34 @@ var App = React.createClass({
       // existing rows in the DB, we do this
       transformer = getTransformerByID('jscodeshift');
     }
-    */
 
     const parser = getParser(
-      /*transformer ? transformer.defaultParser : */LocalStorage.getParser()
+      transformer ? transformer.defaultParser : LocalStorage.getParser()
     ) || getDefaultParser();
+    */
+    const parser = getDefaultParser();
+    const generator = getDefaultGenerator();
+
+    const leftParser = getDefaultLeftParser();
+    const leftGenerator = getDefaultLeftGenerator();
 
     return {
       ast: null,
+      astSource: null,
       // transformer,
       focusPath: [],
+      leftFocusPath: [],
       // ...this._setCode(initialCode),
       ...this._setCode(defaultCode),
+      ...this._setLeftCode(''),
       // ...this._setTransformCode(initialTransformCode),
       // snippet: snippet,
       // showTransformPanel: !!transformer,
       // revision: revision,
       parser,
+      generator,
+      leftParser,
+      leftGenerator,
       hideAst: true,
     };
   },
@@ -68,7 +80,7 @@ var App = React.createClass({
       (_, astNode) => {
         let range = this.state.parser.nodeToRange(astNode);
         if (range) {
-          PubSub.publish('CM.HIGHLIGHT', range);
+          PubSub.publish('CM.HIGHLIGHT', range, this.state.astSource);
         }
       }
     );
@@ -85,6 +97,10 @@ var App = React.createClass({
     return {initialCode: code, currentCode: code};
   },
 
+  _setLeftCode(code) {
+    return {initialLeftCode: code, currentLeftCode: code};
+  },
+
   _setTransformCode(transformCode) {
     return {
       initialTransformCode: transformCode,
@@ -99,21 +115,24 @@ var App = React.createClass({
     return parser.parse(code);
   },
 
-  onContentChange: function({value: code, cursor, isInternal}) {
-    if (this.state.ast && this.state.currentCode === code) {
+  onContentChange: function(source, {value: code, cursor, isInternal}) {
+    const isLeft = source === 'leftEditor';
+    if (this.state.ast && (this.state[isLeft ? 'currentLeftCode' : 'currentCode'] === code || isInternal)) {
       return;
     }
 
-    this.parse(code).then(
+    this.parse(code, isLeft ? this.state.leftParser : this.state.parser).then(
       ast => this.setState({
         ast: ast,
-        currentCode: code,
-        focusPath: cursor ? getFocusPath(ast, cursor, this.state.parser) : [],
+        astSource: source,
+        [isLeft ? 'currentLeftCode' : 'currentCode']: code,
+        focusPath: cursor ? getFocusPath(ast, cursor, this.state[isLeft ? 'leftParser' : 'parser']) : [],
         editorError: null,
       }),
       error => this.setState({
         ast: null,
-        currentCode: code,
+        astSource: null,
+        [isLeft ? 'currentLeftCode' : 'currentCode']: code,
         editorError: error,
       })
     );
@@ -170,10 +189,11 @@ var App = React.createClass({
     this._onResize();
   },
   */
-  onActivity: function(cursorPos) {
+  onActivity: function(source, cursorPos) {
+    const isLeft = source === 'leftEditor';
     if (this.state.ast) {
       this.setState({
-        focusPath: getFocusPath(this.state.ast, cursorPos, this.state.parser),
+        focusPath: getFocusPath(this.state.ast, cursorPos, this.state[isLeft ? 'leftParser' : 'parser']),
       });
     }
   },
@@ -288,13 +308,25 @@ var App = React.createClass({
             className="splitpane"
             onResize={this._onResize}
             onToggle={this._onToggleAst}>
-            <Editor
-              ref="editor"
-              defaultValue={this.state.initialCode}
-              error={this.state.editorError}
-              onContentChange={this.onContentChange}
-              onActivity={this.onActivity}
-            />
+            <SplitPane
+              className="splitpane"
+              onResize={this._onResize}
+              onToggle={this._onToggleAst}>
+              <Editor
+                ref="leftEditor"
+                defaultValue={this.state.initialLeftCode}
+                error={this.state.editorError}
+                onContentChange={this.onContentChange.bind(this, 'leftEditor')}
+                onActivity={this.onActivity.bind(this, 'leftEditor')}
+              />
+              <Editor
+                ref="editor"
+                defaultValue={this.state.initialCode}
+                error={this.state.editorError}
+                onContentChange={this.onContentChange.bind(this, 'editor')}
+                onActivity={this.onActivity.bind(this, 'editor')}
+              />
+            </SplitPane>
             {this.state.hideAst ? null : <ASTOutput
               ast={this.state.ast}
               editorError={this.state.editorError}
