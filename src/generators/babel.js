@@ -4,6 +4,8 @@ const ID = 'babel';
 
 // TODO: add options
 const options = {
+  compact: false,
+  retainLines: false,
 };
 
 function generate(ast, code) {

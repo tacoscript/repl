@@ -4,6 +4,9 @@ const ID = 'tacoscript';
 
 // TODO: add options
 const options = {
+  format: {
+    preserve: false,
+  },
 };
 
 function generate(ast, code) {

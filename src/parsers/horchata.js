@@ -4,7 +4,7 @@ import pkg from 'horchata/package.json';
 import * as LocalStorage from '../LocalStorage';
 import SettingsRenderer from './utils/SettingsRenderer';
 
-const ID = 'babylon6';
+const ID = 'horchata';
 const plugins = [
   // TODO
 ];

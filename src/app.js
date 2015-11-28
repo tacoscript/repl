@@ -16,6 +16,7 @@ import getFocusPath from './getFocusPath';
 import {getDefaultParser, getDefaultLeftParser/*, getParser*/} from './parsers';
 import {getDefaultGenerator, getDefaultLeftGenerator} from './generators';
 import defaultCode from './codeExample.txt';
+const defaultLeftCode = '# ...generating';
 
 // import SaveForkMixin from './SaveForkMixin';
 
@@ -57,7 +58,7 @@ var App = React.createClass({
       leftFocusPath: [],
       // ...this._setCode(initialCode),
       ...this._setCode(defaultCode),
-      ...this._setLeftCode(''),
+      ...this._setLeftCode(defaultLeftCode),
       // ...this._setTransformCode(initialTransformCode),
       // snippet: snippet,
       // showTransformPanel: !!transformer,
@@ -112,27 +113,49 @@ var App = React.createClass({
     if (!parser) {
       parser = this.state.parser;
     }
+    // console.log('Parsing with ' + parser.id);
     return parser.parse(code);
+  },
+
+  generate: function(ast, code, generator) {
+    if (!generator) {
+      generator = this.state.generator;
+    }
+    // console.log('Generating with ' + generator.id);
+    return generator.generate(ast, code);
   },
 
   onContentChange: function(source, {value: code, cursor, isInternal}) {
     const isLeft = source === 'leftEditor';
+    if (isLeft && code === defaultLeftCode) {
+      return;
+    }
     if (this.state.ast && (this.state[isLeft ? 'currentLeftCode' : 'currentCode'] === code || isInternal)) {
       return;
     }
 
     this.parse(code, isLeft ? this.state.leftParser : this.state.parser).then(
-      ast => this.setState({
+      ast => (this.setState({
         ast: ast,
         astSource: source,
         [isLeft ? 'currentLeftCode' : 'currentCode']: code,
         focusPath: cursor ? getFocusPath(ast, cursor, this.state[isLeft ? 'leftParser' : 'parser']) : [],
         editorError: null,
-      }),
+      }), ast),
       error => this.setState({
         ast: null,
         astSource: null,
         [isLeft ? 'currentLeftCode' : 'currentCode']: code,
+        editorError: error,
+      })
+    ).then(
+      ast => this.generate(ast, code, isLeft ? this.state.generator : this.state.leftGenerator)
+    ).then(
+      generatedCode => this.setState({
+        ...this[isLeft ? '_setCode' : '_setLeftCode'](generatedCode),
+        editorError: null,
+      }),
+      error => this.setState({
         editorError: error,
       })
     );
