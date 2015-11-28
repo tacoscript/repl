@@ -5,22 +5,24 @@ import PasteDropTarget from './PasteDropTarget';
 import PubSub from 'pubsub-js';
 import React from 'react';
 import SplitPane from './SplitPane';
-import Toolbar from './Toolbar';
-import TransformOutput from './TransformOutput';
+// import Toolbar from './Toolbar';
+// import TransformOutput from './TransformOutput';
 import SettingsDialog from './SettingsDialog';
+import ParserSettingsButton from './ParserSettingsButton';
 import * as LocalStorage from './LocalStorage';
 
 import getFocusPath from './getFocusPath';
-import {getTransformerByID} from './transformers';
+// import {getTransformerByID} from './transformers';
 import {getDefaultParser, getParser} from './parsers';
 import defaultCode from './codeExample.txt';
 
-import SaveForkMixin from './SaveForkMixin';
+// import SaveForkMixin from './SaveForkMixin';
 
 var App = React.createClass({
-  mixins: [SaveForkMixin],
+  // mixins: [SaveForkMixin],
   getInitialState: function() {
     // TODO: move revision handling code into the SaveForkMixin
+    /*
     var snippet = this.props.snippet;
     var revision = this.props.revision;
     if ((snippet && !revision) || (!snippet && revision)) {
@@ -35,22 +37,24 @@ var App = React.createClass({
       // existing rows in the DB, we do this
       transformer = getTransformerByID('jscodeshift');
     }
+    */
 
     const parser = getParser(
-      transformer ? transformer.defaultParser : LocalStorage.getParser()
+      /*transformer ? transformer.defaultParser : */LocalStorage.getParser()
     ) || getDefaultParser();
 
     return {
       ast: null,
-      transformer,
+      // transformer,
       focusPath: [],
-      ...this._setCode(initialCode),
-      ...this._setTransformCode(initialTransformCode),
-      snippet: snippet,
-      showTransformPanel: !!transformer,
-      revision: revision,
+      // ...this._setCode(initialCode),
+      ...this._setCode(defaultCode),
+      // ...this._setTransformCode(initialTransformCode),
+      // snippet: snippet,
+      // showTransformPanel: !!transformer,
+      // revision: revision,
       parser,
-      hideAst: false,
+      hideAst: true,
     };
   },
 
@@ -114,7 +118,7 @@ var App = React.createClass({
       })
     );
   },
-
+  /*
   onTransformCodeChange: function({value: transformCode}) {
     this.setState({
       currentTransformCode: transformCode,
@@ -165,7 +169,7 @@ var App = React.createClass({
     }
     this._onResize();
   },
-
+  */
   onActivity: function(cursorPos) {
     if (this.state.ast) {
       this.setState({
@@ -233,6 +237,7 @@ var App = React.createClass({
   },
 
   render: function() {
+    /*
     const {
       revision,
       showTransformPanel,
@@ -241,12 +246,12 @@ var App = React.createClass({
     } = this.state;
     const revisionCode = revision && revision.get('code') || defaultCode;
 
-    // TODO: move to SaveForkMixin
+    TODO: move to SaveForkMixin
     const canSave = revisionCode !== this.state.currentCode ||
        showTransformPanel &&
        currentTransformCode !== initialTransformCode &&
        currentTransformCode !== this.state.transformer.defaultTransform;
-
+    */
     return (
       <PasteDropTarget
         className="dropTarget"
@@ -257,6 +262,7 @@ var App = React.createClass({
         }
         onText={this._onDropText}
         onError={this._onDropError}>
+        {/*
         <Toolbar
           forking={this.state.forking}
           saving={this.state.saving}
@@ -270,11 +276,14 @@ var App = React.createClass({
           transformer={this.state.transformer}
           transformPanelIsEnabled={this.state.showTransformPanel}
         />
+        */}
         {this.state.error ? <ErrorMessage message={this.state.error} /> : null}
+        {/*
         <SplitPane
           className="splitpane-content"
           vertical={true}
           onResize={this._onResize}>
+          */}
           <SplitPane
             className="splitpane"
             onResize={this._onResize}
@@ -293,6 +302,7 @@ var App = React.createClass({
               parser={this.state.parser}
             />}
           </SplitPane>
+          {/*
           {this.state.showTransformPanel ? <SplitPane
             className="splitpane"
             onResize={this._onResize}>
@@ -309,6 +319,8 @@ var App = React.createClass({
             />
           </SplitPane> : null}
         </SplitPane>
+        */}
+        <ParserSettingsButton parser={this.state.parser} />
         <SettingsDialog
           parser={this.state.parser}
           onChange={this._onSettingsChange}
@@ -324,10 +336,11 @@ function render(props) {
     document.getElementById('container')
   );
 }
-// render({});
-
+render({});
+/*
 import Snippet from './Snippet';
 Snippet.fetchFromURL().then(
   data => render(data),
   error => render({error: 'Failed to fetch revision: ' + error.message})
 );
+*/

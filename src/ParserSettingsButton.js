@@ -11,11 +11,12 @@ export default class ParserSettingsButton extends React.Component {
     let settings = this.props.parser.renderSettings;
     return (
       <button
+        className="btn-parser-settings"
         type="button"
         disabled={!settings}
         onClick={this._show}>
         <i className="fa fa-cog fa-fw" />
-        &nbsp;Parser Settings
+        &nbsp;{/*Parser */}Settings
       </button>
     );
   }
