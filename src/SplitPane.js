@@ -14,6 +14,8 @@ var baseStyleVertical = {
   boxSizing: 'border-box',
 };
 
+var noop = () => {};
+
 /**
  * Creates a left-right split pane inside its container.
  */
@@ -23,8 +25,18 @@ export default React.createClass({
       dividerPosition: 50,
     };
   },
+  getInitialProps: function() {
+    return {
+      onToggle: noop,
+    };
+  },
 
-  _onMouseDown: function() {
+  _onMouseDown: function(e) {
+    var now = +new Date();
+    if (now - this._lastMouseDown < 250) {
+      return this.props.onToggle(e);
+    }
+    this._lastMouseDown = now;
     var vertical = this.props.vertical;
     var max = vertical ? global.innerHeight : global.innerWidth;
     global.document.body.style.cursor = vertical ? 'row-resize' : 'col-resize';
@@ -47,23 +59,13 @@ export default React.createClass({
     document.addEventListener('mouseup', upHandler);
   },
 
-  render: function() {
-    var children = this.props.children;
-    var dividerPos = this.state.dividerPosition;
+  _getDividerStyles: function(dividerPos) {
     var styleA;
     var styleB;
     var dividerStyle;
-
-    if (!Array.isArray(children) || children.filter(x => x).length !== 2) {
-      return (
-        <div className={this.props.className}>
-          <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}}>
-            {this.props.children}
-          </div>
-        </div>
-      );
-    }
-
+    var offset =
+      0 <= dividerPos && dividerPos < 1 ? 2.5 * (1 - dividerPos) :
+      99 < dividerPos && dividerPos <= 100 ? -2.5 * (dividerPos - 99) : 0;
     if (this.props.vertical) {
       // top
       styleA = {
@@ -83,7 +85,7 @@ export default React.createClass({
         ...baseStyleVertical,
         top: dividerPos + '%',
         height: 5,
-        marginTop: -2.5,
+        marginTop: -2.5 + offset,
         zIndex: 100,
       };
     } else {
@@ -105,11 +107,36 @@ export default React.createClass({
         ...baseStyleHorizontal,
         left: dividerPos + '%',
         width: 5,
-        marginLeft: -2.5,
+        marginLeft: -2.5 + offset,
         zIndex: 100,
       };
     }
+    return {styleA, styleB, dividerStyle};
+  },
 
+  render: function() {
+    var children = this.props.children;
+
+    if (!Array.isArray(children) || children.filter(x => x).length !== 2) {
+      return (
+        <div className={this.props.className}>
+          <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}}>
+            {this.props.children}
+          </div>
+          {this.props.onToggle === noop ? null :
+            <div
+              className={
+                'splitpane-divider' + (this.props.vertical ? ' vertical' : '')
+              }
+              onClick={this.props.onToggle}
+              style={this._getDividerStyles(children[0] ? 100 : 0).dividerStyle}
+            />
+          }
+        </div>
+      );
+    }
+
+    var {styleA, styleB, dividerStyle} = this._getDividerStyles(this.state.dividerPosition);
     return (
       <div className={this.props.className}>
         <div style={styleA}>

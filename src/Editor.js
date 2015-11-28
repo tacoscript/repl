@@ -17,7 +17,8 @@ export default class Editor {
     lineNumbers: true,
     readOnly: false,
     onContentChange: () => {},
-    onActivity: () => {}
+    onActivity: () => {},
+    language: 'javascript',
   };
 
   getValue() {
@@ -67,15 +68,18 @@ export default class Editor {
       }
     );
 
+    this._pendingChanges = [];
     if (this.props.onContentChange) {
       this._onContentChange();
     }
-
-    this._bindCMHandler('changes', () => {
+    this._bindCMHandler('changes', (cm, changes) => {
+      this._pendingChanges = this._pendingChanges.concat(changes);
       clearTimeout(this._updateTimer);
       this._updateTimer = setTimeout(this._onContentChange.bind(this), 200);
     });
-    this._bindCMHandler('cursorActivity', () => {
+    this._pendingCursorActivity = [];
+    this._bindCMHandler('cursorActivity', (e) => {
+      this._pendingCursorActivity.push(e.curOp);
       clearTimeout(this._updateTimer);
       this._updateTimer = setTimeout(this._onActivity.bind(this), 100);
     });
@@ -152,14 +156,22 @@ export default class Editor {
   }
 
   _onContentChange() {
+    var changes = this._pendingChanges;
+    this._pendingChanges = [];
+
     var doc = this.codeMirror.getDoc();
     this.props.onContentChange({
       value: doc.getValue(),
       cursor: doc.indexFromPos(doc.getCursor()),
+      isInternal: changes.length === 0 || changes.length === 1 && changes[0].origin === 'setInput',
+      source: this,
     });
   }
 
   _onActivity() {
+    var activity = this._pendingCursorActivity;
+    this._pendingCursorActivity = [];
+
     this.props.onActivity(
       this.codeMirror.getDoc().indexFromPos(this.codeMirror.getCursor())
     );

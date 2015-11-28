@@ -54,6 +54,7 @@ var App = React.createClass({
       showTransformPanel: !!transformer,
       revision: revision,
       parser,
+      hideAst: false,
     };
   },
 
@@ -196,7 +197,7 @@ var App = React.createClass({
     return parser.parse(code);
   },
 
-  onContentChange: function({value: code, cursor}) {
+  onContentChange: function({value: code, cursor, isInternal}) {
     if (this.state.ast && this.state.currentCode === code) {
       return;
     }
@@ -388,6 +389,10 @@ var App = React.createClass({
     this._onParserChange(this.state.parser);
   },
 
+  _onToggleAst: function() {
+    this.setState({hideAst: !this.state.hideAst});
+  },
+
   render: function() {
     const {
       revision,
@@ -431,7 +436,8 @@ var App = React.createClass({
           onResize={this._onResize}>
           <SplitPane
             className="splitpane"
-            onResize={this._onResize}>
+            onResize={this._onResize}
+            onToggle={this._onToggleAst}>
             <Editor
               ref="editor"
               defaultValue={this.state.initialCode}
@@ -439,12 +445,12 @@ var App = React.createClass({
               onContentChange={this.onContentChange}
               onActivity={this.onActivity}
             />
-            <ASTOutput
+            {this.state.hideAst ? null : <ASTOutput
               ast={this.state.ast}
               editorError={this.state.editorError}
               focusPath={this.state.focusPath}
               parser={this.state.parser}
-            />
+            />}
           </SplitPane>
           {this.state.showTransformPanel ? <SplitPane
             className="splitpane"
