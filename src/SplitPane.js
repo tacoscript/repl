@@ -123,7 +123,7 @@ export default React.createClass({
           <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}}>
             {this.props.children}
           </div>
-          {this.props.onToggle === noop ? null :
+          {this.props.onToggle == null || this.props.onToggle === noop ? null :
             <div
               className={
                 'splitpane-divider' + (this.props.vertical ? ' vertical' : '')
