@@ -5,6 +5,10 @@ export let generators = [
   babel,
   tacoscript,
 ];
+for (let i = 0, len = generators.length; i < len; i++) {
+  let generator = generators[i];
+  if (generator.language == null) generator.language = 'javascript';
+}
 
 let byID = generators.reduce(
   (map, tool) => {

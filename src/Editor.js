@@ -49,6 +49,7 @@ export default class Editor {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.codeMirror.setValue(nextProps.defaultValue);
     }
+    // TODO: set mode if language changes
     this._setError(nextProps.error);
   }
 
@@ -65,6 +66,7 @@ export default class Editor {
         value: this.props.defaultValue,
         lineNumbers: this.props.lineNumbers,
         readOnly: this.props.readOnly,
+        mode: this.props.language,
       }
     );
 

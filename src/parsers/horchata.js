@@ -31,6 +31,7 @@ export default {
   ...defaultParserInterface,
 
   id: ID,
+  language: 'tacoscript',
   displayName: ID,
   version: pkg.version,
   homepage: pkg.homepage,

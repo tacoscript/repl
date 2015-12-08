@@ -37,7 +37,7 @@
     "espree": "^2.2.4",
     "esprima": "^2.5",
     "halting-problem": "^1.0.1",
-    "horchata": "^0.1.2",
+    "horchata": "^0.2.0",
     "jscodeshift": "^0.3",
     "json-stringify-safe": "^5.0.1",
     "keypress": "git://github.com/dmauro/Keypress",
@@ -45,7 +45,7 @@
     "react": "^0.13.1",
     "recast": "^0.10.32",
     "shift-parser": "^3.0.4",
-    "tacoscript-generator": "^0.1.2",
+    "tacoscript-generator": "^0.2.0",
     "traceur": "0.0.92",
     "typescript": "^1.6.2",
     "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony"

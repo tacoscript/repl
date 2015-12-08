@@ -335,8 +335,10 @@ var App = React.createClass({
               className="splitpane"
               onResize={this._onResize}
               onToggle={this._onToggleAst}>
+                {/*language={this.state.leftParser.language || 'javascript'}*/}
               <Editor
                 ref="leftEditor"
+                language="coffeescript"
                 defaultValue={this.state.initialLeftCode}
                 error={this.state.editorError}
                 onContentChange={this.onContentChange.bind(this, 'leftEditor')}
@@ -344,6 +346,7 @@ var App = React.createClass({
               />
               <Editor
                 ref="editor"
+                language={this.state.parser.language || 'javascript'}
                 defaultValue={this.state.initialCode}
                 error={this.state.editorError}
                 onContentChange={this.onContentChange.bind(this, 'editor')}

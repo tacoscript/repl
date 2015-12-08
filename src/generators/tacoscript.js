@@ -34,6 +34,7 @@ function generate(ast, code) {
 
 export default {
   id: ID,
+  language: 'tacoscript',
   displayName: ID,
   version: pkg.version,
   homepage: pkg.homepage,
