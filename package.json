@@ -54,6 +54,6 @@
     "start": "http-server",
     "build": "NODE_ENV=production webpack --optimize-occurence-order",
     "watch": "webpack -dw",
-    "push": "./scripts/push-site.sh"
+    "push": "git branch -d gh-pages && git checkout -b gh-pages && npm run build && git add -f dist/*.js && git push -uf origin gh-pages"
   }
 }
