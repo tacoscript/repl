@@ -94,6 +94,13 @@ var App = React.createClass({
     );
   },
 
+  componentWillUpdate: function(nextProps, nextState) {
+    let err = nextState.editorError;
+    if (err && err !== this.state.editorError) {
+      console.warn(err.stack ? err.message + '\n' + err.stack : err);
+    }
+  },
+
   _setCode(code) {
     return {initialCode: code, currentCode: code};
   },
@@ -134,21 +141,23 @@ var App = React.createClass({
       return;
     }
 
-    this.parse(code, isLeft ? this.state.leftParser : this.state.parser).then(
-      ast => (this.setState({
+    const ast = this.parse(code, isLeft ? this.state.leftParser : this.state.parser)
+    ast.then(
+      ast => this.setState({
         ast: ast,
         astSource: source,
         [isLeft ? 'currentLeftCode' : 'currentCode']: code,
         focusPath: cursor ? getFocusPath(ast, cursor, this.state[isLeft ? 'leftParser' : 'parser']) : [],
         editorError: null,
-      }), ast),
+      }),
       error => this.setState({
         ast: null,
         astSource: null,
         [isLeft ? 'currentLeftCode' : 'currentCode']: code,
         editorError: error,
       })
-    ).then(
+    )
+    ast.then(
       ast => this.generate(ast, code, isLeft ? this.state.generator : this.state.leftGenerator)
     ).then(
       generatedCode => this.setState({
@@ -320,7 +329,7 @@ var App = React.createClass({
           transformPanelIsEnabled={this.state.showTransformPanel}
         />
         */}
-        {this.state.error ? <ErrorMessage message={this.state.error} /> : null}
+        {this.state.error || this.state.editorError ? <ErrorMessage message={this.state.error || this.state.editorError.message} /> : null}
         {/*
         <SplitPane
           className="splitpane-content"
