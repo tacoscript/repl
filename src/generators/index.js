@@ -1,9 +1,11 @@
 import babel from './babel';
-import tacoscript from './tacoscript';
+import tacotruck from './tacotruck';
+import alpastor from './alpastor';
 
 export let generators = [
   babel,
-  tacoscript,
+  tacotruck,
+  alpastor,
 ];
 for (let i = 0, len = generators.length; i < len; i++) {
   let generator = generators[i];
@@ -27,5 +29,5 @@ export function getDefaultGenerator() {
 }
 
 export function getDefaultLeftGenerator() {
-  return tacoscript;
+  return tacotruck;
 }

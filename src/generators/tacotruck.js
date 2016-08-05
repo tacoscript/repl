@@ -1,6 +1,6 @@
-import pkg from 'tacoscript-generator/package.json';
+import pkg from 'tacotruck/package.json';
 
-const ID = 'tacoscript';
+const ID = 'tacotruck';
 
 // TODO: add options
 const options = {
@@ -11,9 +11,9 @@ const options = {
 
 function generate(ast, code) {
   return new Promise((resolve, reject) => {
-    require.ensure(['tacoscript-generator'], require => {
+    require.ensure(['tacotruck'], require => {
       try {
-        const generatorModule = require('tacoscript-generator');
+        const generatorModule = require('tacotruck');
         const generate = generatorModule.default || generatorModule;
 
         resolve(

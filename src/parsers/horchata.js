@@ -14,7 +14,7 @@ const options = Object.assign(
     allowReturnOutsideFunction: false,
     allowSuperOutsideMethod: false,
     allowNewTargetOutsideFunction: false,
-
+    sourceElementsKey: 'tacoscriptSourceElements',
     // sourceElements: true,
 
     // locations: true,

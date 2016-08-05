@@ -14,7 +14,7 @@ import * as LocalStorage from './LocalStorage';
 import getFocusPath from './getFocusPath';
 // import {getTransformerByID} from './transformers';
 import {getDefaultParser, getDefaultLeftParser/*, getParser*/} from './parsers';
-import {getDefaultGenerator, getDefaultLeftGenerator} from './generators';
+import {getDefaultGenerator, getDefaultLeftGenerator, getGeneratorByID} from './generators';
 import defaultCode from './codeExample.txt';
 const defaultLeftCode = '# ...generating';
 
@@ -107,6 +107,20 @@ var App = React.createClass({
 
   _setLeftCode(code) {
     return {initialLeftCode: code, currentLeftCode: code};
+  },
+
+  _setGenerator(generatorId) {
+    this.setState({
+      generator: getGeneratorByID(generatorId)
+    });
+  },
+
+  _useBabelGenerator() {
+    this._setGenerator('babel');
+  },
+
+  _useAlPastor() {
+    this._setGenerator('alpastor');
   },
 
   _setTransformCode(transformCode) {
@@ -353,14 +367,26 @@ var App = React.createClass({
                 onContentChange={this.onContentChange.bind(this, 'leftEditor')}
                 onActivity={this.onActivity.bind(this, 'leftEditor')}
               />
-              <Editor
-                ref="editor"
-                language={this.state.parser.language || 'javascript'}
-                defaultValue={this.state.initialCode}
-                error={this.state.editorError}
-                onContentChange={this.onContentChange.bind(this, 'editor')}
-                onActivity={this.onActivity.bind(this, 'editor')}
-              />
+              <div>
+                <label>
+                  <input type="radio" name="generator" value="babel"
+                    onClick={this._useBabelGenerator} checked={this.state.generator.id === 'babel'} />
+                  Babel Generator
+                </label>
+                <label>
+                  <input type="radio" name="generator" value="alpastor"
+                    onClick={this._useAlPastor} checked={this.state.generator.id === 'alpastor'} />
+                  AlPastor Generator
+                </label>
+                <Editor
+                  ref="editor"
+                  language={this.state.parser.language || 'javascript'}
+                  defaultValue={this.state.initialCode}
+                  error={this.state.editorError}
+                  onContentChange={this.onContentChange.bind(this, 'editor')}
+                  onActivity={this.onActivity.bind(this, 'editor')}
+                />
+              </div>
             </SplitPane>
             {this.state.hideAst ? null : <ASTOutput
               ast={this.state.ast}
